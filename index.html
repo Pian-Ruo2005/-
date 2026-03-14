@@ -85,6 +85,25 @@
     }
     .nav-links a:hover { color: var(--text); }
     .nav-links a:hover::after { width: 100%; }
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .nav-user span { color: var(--accent); font-weight: 600; }
+    .nav-logout {
+      background: none;
+      border: 1px solid rgba(124,106,247,0.35);
+      color: var(--text-muted);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-logout:hover { color: var(--text); border-color: var(--accent); }
 
     /* ===== 通用区块 ===== */
     section {
@@ -429,7 +448,7 @@
     <li><a href="#features">功能</a></li>
     <li><a href="#journey">历程</a></li>
     <li><a href="#contact">联系</a></li>
-    <li><a href="auth.html">登录 / 注册</a></li>
+    <li><a href="auth.html" id="nav-auth-link">登录 / 注册</a></li>
   </ul>
 </nav>
 
@@ -665,6 +684,35 @@
     });
   }, { threshold: 0.5 });
   numEls.forEach(el => numObserver.observe(el));
+</script>
+
+<script>
+  // 导航栏登录状态检测
+  (function () {
+    const authLink = document.getElementById('nav-auth-link');
+    if (!authLink) return;
+
+    const user  = JSON.parse(localStorage.getItem('han_current') || 'null');
+    const admin = localStorage.getItem('han_admin');
+
+    if (admin) {
+      const li = authLink.parentElement;
+      li.innerHTML =
+        '<span class="nav-user">🛡️ <span>管理员</span>' +
+        '<button class="nav-logout" onclick="logout()">退出</button></span>';
+    } else if (user) {
+      const li = authLink.parentElement;
+      li.innerHTML =
+        '<span class="nav-user">👤 <span>' + user.username + '</span>' +
+        '<button class="nav-logout" onclick="logout()">退出</button></span>';
+    }
+  })();
+
+  function logout() {
+    localStorage.removeItem('han_current');
+    localStorage.removeItem('han_admin');
+    window.location.reload();
+  }
 </script>
 </body>
 </html>

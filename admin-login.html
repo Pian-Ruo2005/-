@@ -161,6 +161,16 @@
       box-shadow: 0 8px 28px rgba(247,194,106,0.45);
     }
 
+    .msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .msg.error   { background: rgba(247,106,140,0.12); border: 1px solid rgba(247,106,140,0.3); color: #f76a8c; }
+    .msg.success { background: rgba(78,205,196,0.12);  border: 1px solid rgba(78,205,196,0.3);  color: #4ecdc4; }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -193,13 +203,30 @@
       <input id="password" type="password" placeholder="请输入密码" required autocomplete="current-password" />
     </div>
     <button type="submit" class="btn">进入后台</button>
+    <div id="msg" class="msg"></div>
   </form>
 </div>
 
 <script>
+  function showMsg(text, type) {
+    const el = document.getElementById('msg');
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.style.display = 'block';
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    alert('管理员登录功能开发中，敬请期待！');
+    const account = document.getElementById('admin-account').value.trim();
+    const pw      = document.getElementById('password').value;
+
+    if (account === 'admin' && pw === 'admin888') {
+      localStorage.setItem('han_admin', '1');
+      showMsg('管理员验证成功！正在进入后台…', 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    } else {
+      showMsg('账号或密码错误，拒绝访问。', 'error');
+    }
   }
 
   (function () {

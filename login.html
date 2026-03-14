@@ -160,6 +160,16 @@
     }
     .divider a:hover { text-decoration: underline; }
 
+    .msg {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .msg.error   { background: rgba(247,106,140,0.12); border: 1px solid rgba(247,106,140,0.3); color: #f76a8c; }
+    .msg.success { background: rgba(78,205,196,0.12);  border: 1px solid rgba(78,205,196,0.3);  color: #4ecdc4; }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -191,15 +201,36 @@
       <input id="password" type="password" placeholder="请输入密码" required autocomplete="current-password" />
     </div>
     <button type="submit" class="btn">登 录</button>
+    <div id="msg" class="msg"></div>
   </form>
 
   <p class="divider">还没有账号？<a href="register.html">去注册</a></p>
 </div>
 
 <script>
+  function showMsg(text, type) {
+    const el = document.getElementById('msg');
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.style.display = 'block';
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    alert('登录功能开发中，敬请期待！');
+    const account = document.getElementById('account').value.trim();
+    const pw      = document.getElementById('password').value;
+
+    const users = JSON.parse(localStorage.getItem('han_users') || '[]');
+    const encoded = btoa(unescape(encodeURIComponent(pw)));
+    const user = users.find(u =>
+      (u.username === account || u.email === account) && u.password === encoded
+    );
+
+    if (!user) { showMsg('账号或密码错误，请重试。', 'error'); return; }
+
+    localStorage.setItem('han_current', JSON.stringify({ username: user.username, email: user.email }));
+    showMsg(`欢迎回来，${user.username}！正在跳转…`, 'success');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
   }
 
   (function () {
