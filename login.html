@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用户登录 — 小韩的空间</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --accent: #4ecdc4;
+      --accent2: #7c6af7;
+      --accent3: #f7c26a;
+      --text: #e8e8f0;
+      --text-muted: #8888aa;
+      --radius: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-x: hidden;
+    }
+    #canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 32px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.25s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-arrow {
+      width: 18px;
+      height: 18px;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp 0.7s ease both;
+    }
+    .card-top-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      border-radius: 24px 24px 0 0;
+    }
+
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: rgba(78, 205, 196, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(78,205,196,0.18);
+    }
+    input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--accent), #2db8af);
+      color: #0f0f13;
+      box-shadow: 0 4px 20px rgba(78,205,196,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(78,205,196,0.45);
+    }
+
+    .divider {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      margin: 24px 0 0;
+    }
+    .divider a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .divider a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<a href="auth.html" class="back-link">
+  <span class="back-arrow"></span>
+  返回选择页
+</a>
+
+<div class="card">
+  <div class="card-top-bar"></div>
+  <div class="icon-wrap">🔐</div>
+  <h1>用户登录</h1>
+  <p class="subtitle">欢迎回来，请输入账号信息</p>
+
+  <form onsubmit="handleSubmit(event)">
+    <div class="form-group">
+      <label for="account">账号 / 邮箱</label>
+      <input id="account" type="text" placeholder="请输入账号或邮箱" required autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label for="password">密码</label>
+      <input id="password" type="password" placeholder="请输入密码" required autocomplete="current-password" />
+    </div>
+    <button type="submit" class="btn">登 录</button>
+  </form>
+
+  <p class="divider">还没有账号？<a href="register.html">去注册</a></p>
+</div>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    alert('登录功能开发中，敬请期待！');
+  }
+
+  (function () {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, dots = [];
+    const COLORS = ['#7c6af7', '#4ecdc4', '#f7c26a', '#f76a8c'];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    function init() {
+      dots = [];
+      const n = Math.min(60, Math.floor((W * H) / 18000));
+      for (let i = 0; i < n; i++) {
+        dots.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*2+0.5,
+          vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4,
+          color: COLORS[Math.floor(Math.random()*COLORS.length)], alpha: Math.random()*0.6+0.2 });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      for (let i=0;i<dots.length;i++) for (let j=i+1;j<dots.length;j++) {
+        const dx=dots[i].x-dots[j].x, dy=dots[i].y-dots[j].y, dist=Math.sqrt(dx*dx+dy*dy);
+        if (dist<130) {
+          ctx.beginPath(); ctx.moveTo(dots[i].x,dots[i].y); ctx.lineTo(dots[j].x,dots[j].y);
+          ctx.strokeStyle=`rgba(78,205,196,${(1-dist/130)*0.18})`; ctx.lineWidth=1; ctx.stroke();
+        }
+      }
+      dots.forEach(d => {
+        ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+        ctx.fillStyle=d.color; ctx.globalAlpha=d.alpha; ctx.fill(); ctx.globalAlpha=1;
+        d.x+=d.vx; d.y+=d.vy;
+        if(d.x<0||d.x>W) d.vx*=-1; if(d.y<0||d.y>H) d.vy*=-1;
+      });
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', ()=>{ resize(); init(); });
+    resize(); init(); draw();
+  })();
+</script>
+</body>
+</html>
